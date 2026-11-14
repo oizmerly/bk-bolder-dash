@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101311">
+  <meta name="description" content="The original MRLC Bolder Dash for the Elektronika BK-0010(01), running offline in one self-contained page.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Bolder Dash · BK-0010(01)</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23101311'/%3E%3Cpath d='m16 4 11 7v11l-11 7-11-7V11Zm0 0v12m11-5-11 5-11-5m11 5v13' fill='none' stroke='%238ce4a3' stroke-width='2'/%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: dark; --bg: #101311; --panel: #171b18; --line: #2a322c; --text: #e1e8e2; --muted: #8b9b90; --accent: #9bdfac; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    button, summary { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    button:disabled { opacity: .45; cursor: default; }
+    svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .icons { display: none; }
+    .app { width: min(960px, calc(100% - 64px)); margin: 0 auto; padding: 32px 0 20px; }
+    .masthead { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-mark { width: 36px; height: 36px; border: 1px solid #3a5843; display: grid; place-items: center; color: var(--accent); }
+    .brand-mark svg { width: 22px; height: 22px; }
+    h1 { font-size: 16px; letter-spacing: .14em; line-height: 1.2; margin: 0 0 4px; font-weight: 600; }
+    .subtitle { color: var(--muted); font-size: 10px; letter-spacing: .09em; }
+    .machine-state { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+    .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px #9bdfac33; }
+    .dot.paused { background: #d7b276; }
+    .player { width: 100%; }
+    .screen-shell { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #000; border: 1px solid #354038; overflow: hidden; }
+    canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; outline: none; }
+    canvas:focus-visible { outline: 1px solid var(--accent); outline-offset: -2px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+    .toolbar-group { display: flex; align-items: center; gap: 4px; }
+    .tool { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid transparent; background: transparent; min-height: 36px; padding: 6px 10px; color: #a7b7ac; border-radius: 4px; font-size: 11px; }
+    .tool:hover { background: #202923; color: var(--text); }
+    .tool[aria-pressed="true"]#pause { border-color: #665337; color: #e4c18c; }
+    .primary { color: var(--accent); background: #1e2e23; border: 1px solid #34513c; padding-inline: 15px; }
+    .primary:hover { background: #293f30; }
+    .key-guide { display: flex; justify-content: space-between; gap: 14px; color: var(--muted); font-size: 10px; padding-top: 20px; }
+    .key-group { display: flex; gap: 20px; flex-wrap: wrap; }
+    .key-item { white-space: nowrap; }
+    kbd { font: inherit; color: #c4d0c8; font-size: 10px; padding: 2px 5px; border: 1px solid #344137; border-bottom-width: 2px; border-radius: 3px; background: #171e19; }
+    .credit { color: #677c6d; white-space: nowrap; }
+    .overlay { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 12px; background: #080e0bd9; backdrop-filter: blur(3px); }
+    .overlay h2 { font-size: 18px; letter-spacing: .15em; font-weight: 500; margin: 0; }
+    .overlay p { max-width: 80%; margin: 0; color: var(--muted); text-align: center; }
+    .overlay button { margin-top: 8px; }
+    .error-detail { font-size: 11px; overflow-wrap: anywhere; }
+    .notice { position: fixed; z-index: 5; bottom: 24px; left: 50%; transform: translate(-50%, 10px); padding: 9px 16px; border: 1px solid #3a5140; background: #1c2c21; color: #d8e9dc; opacity: 0; pointer-events: none; transition: opacity .16s, transform .16s; max-width: calc(100% - 32px); text-align: center; font-size: 11px; }
+    .notice.visible { opacity: 1; transform: translate(-50%, 0); }
+    .touch-controls { display: none; justify-content: space-between; align-items: center; padding: 20px 10px 0; gap: 24px; user-select: none; }
+    .dpad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 44px); gap: 4px; }
+    .touch-key { border: 1px solid #35443a; border-radius: 5px; background: #19231c; min-height: 44px; color: #c7d8cc; touch-action: none; user-select: none; }
+    .touch-key.pressed, .touch-key:active { background: #385541; color: #fff; }
+    .dpad .up { grid-area: 1 / 2; } .dpad .left { grid-area: 2 / 1; } .dpad .right { grid-area: 2 / 3; } .dpad .down { grid-area: 3 / 2; }
+    .touch-actions { display: flex; flex-direction: column; gap: 8px; width: 100px; }
+    .virtual-keyboard { margin-top: 18px; color: var(--muted); font-size: 11px; }
+    .virtual-keyboard summary { cursor: pointer; width: fit-content; }
+    .virtual-keys { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding-top: 14px; max-width: 620px; }
+    .virtual-keys button { min-height: 38px; border: 1px solid var(--line); background: var(--panel); border-radius: 3px; }
+    .virtual-keys button:hover { background: #304536; }
+    .virtual-specials { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .virtual-specials button { padding: 5px 12px; }
+    dialog { color: var(--text); background: #171e19; border: 1px solid #405447; border-radius: 8px; padding: 28px; max-width: min(490px, calc(100% - 32px)); max-height: 85dvh; }
+    dialog::backdrop { background: #000b; backdrop-filter: blur(5px); }
+    .dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 16px; }
+    .dialog-heading h2 { font-size: 16px; font-weight: 500; margin: 0; }
+    .dialog-heading button { padding: 6px; border: 0; background: transparent; color: var(--muted); }
+    dialog p { color: #aabcb0; font-size: 12px; margin: 12px 0; }
+    dialog table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 20px 0; }
+    dialog td { padding: 7px 0; border-bottom: 1px solid #2d3a31; }
+    dialog td:last-child { color: #aabcb0; padding-left: 20px; }
+    .dialog-note { font-size: 10px; color: #7a9382; }
+    .player:fullscreen { background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
+    .player:fullscreen .screen-shell { width: min(100%, calc((100dvh - 100px) * 4 / 3)); flex: none; }
+    .player:fullscreen .toolbar { width: min(100%, calc((100dvh - 100px) * 4 / 3)); }
+    @media (min-width: 1000px) { .app { width: min(960px, calc((100dvh - 190px) * 4 / 3)); min-width: 540px; } }
+    @media (pointer: coarse) { .touch-controls { display: flex; } }
+    @media (max-width: 650px) {
+      .app { width: calc(100% - 24px); padding-top: 20px; }
+      .masthead { margin-bottom: 18px; gap: 8px; }
+      .brand { gap: 10px; } h1 { font-size: 13px; }
+      .subtitle { font-size: 9px; letter-spacing: .04em; }
+      .machine-state { font-size: 9px; }
+      .brand-mark { width: 30px; height: 32px; }
+      .toolbar { gap: 5px; padding: 8px 0; }
+      .toolbar-group { gap: 0; }
+      .tool { padding: 6px 7px; font-size: 10px; gap: 5px; min-height: 40px; }
+      .tool svg { width: 14px; height: 14px; }
+      .primary { padding-inline: 10px; }
+      .hide-small { display: none; }
+      .key-guide { gap: 10px; padding-top: 16px; }
+      .key-group { gap: 10px; }
+      .credit { font-size: 9px; }
+      .virtual-keys { grid-template-columns: repeat(9, 1fr); }
+    }
+    @media (prefers-reduced-motion: reduce) { .notice { transition: none; } }
+  </style>
+</head>
+<body>
+  <svg class="icons" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-diamond" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7Zm0 0v10m9-5-9 5-9-5m9 5v10"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
+    <symbol id="icon-restart" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 1.5 7M3 4v6h6"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5Zm5 5 6 6m0-6-6 6"/></symbol>
+    <symbol id="icon-display" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4m0-17v13"/></symbol>
+    <symbol id="icon-fullscreen" viewBox="0 0 24 24"><path d="M3 9V3h6m6 0h6v6m0 6v6h-6m-6 0H3v-6"/></symbol>
+    <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1.5 1-1.5 1-1.5 3m0 3h.01"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  </svg>
+  <main class="app">
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><svg><use href="#icon-diamond"/></svg></span>
+        <div><h1>BOLDER DASH</h1><div class="subtitle">ЭЛЕКТРОНИКА БК-0010(01)</div></div>
+      </div>
+      <div class="machine-state" aria-live="polite"><span class="dot" id="power-dot"></span><span id="power-label">RUNNING</span></div>
+    </header>
+
+    <section class="player" id="player" aria-label="Bolder Dash game">
+      <div class="screen-shell">
+        <canvas id="screen" width="512" height="256" tabindex="0" role="img" aria-label="Original Bolder Dash screen. Use arrow keys to move, Enter to select. Press F1 for help.">Your browser needs Canvas to run this game.</canvas>
+        <div class="overlay" id="pause-overlay" hidden>
+          <h2>PAUSED</h2>
+          <p>Take your time. The cave can wait.</p>
+          <button class="tool primary" id="resume" type="button"><svg aria-hidden="true"><use href="#icon-play"/></svg>Resume <span class="hide-small">· F2</span></button>
+        </div>
+        <div class="overlay" id="error-overlay" role="alert" hidden>
+          <h2>BK STOPPED</h2><p class="error-detail" id="error-detail"></p><p>Use Restart to begin again.</p>
+        </div>
+      </div>
+      <div class="toolbar" aria-label="Game controls">
+        <div class="toolbar-group">
+          <button class="tool primary" type="button" data-code="10" title="Send Enter to the BK"><svg aria-hidden="true"><use href="#icon-play"/></svg>Enter</button>
+          <button class="tool" type="button" id="pause" aria-pressed="false" title="Pause or resume · F2"><svg aria-hidden="true"><use id="pause-symbol" href="#icon-pause"/></svg><span id="pause-label">Pause</span></button>
+          <button class="tool" type="button" id="restart" title="Restart the original program"><svg aria-hidden="true"><use href="#icon-restart"/></svg><span class="hide-small">Restart</span></button>
+        </div>
+        <div class="toolbar-group">
+          <button class="tool" type="button" id="sound" aria-pressed="true" title="Toggle the original BK speaker"><svg aria-hidden="true"><use id="sound-symbol" href="#icon-sound"/></svg><span id="sound-label">Sound on</span></button>
+          <button class="tool" type="button" id="display" aria-pressed="false" title="Switch between the BK color and monochrome outputs"><svg aria-hidden="true"><use href="#icon-display"/></svg><span class="hide-small" id="display-label">Color</span></button>
+          <button class="tool" type="button" id="fullscreen" aria-label="Full screen" title="Full screen"><svg aria-hidden="true"><use href="#icon-fullscreen"/></svg></button>
+          <button class="tool" type="button" id="help" aria-label="How to play" title="How to play · F1"><svg aria-hidden="true"><use href="#icon-help"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <div class="key-guide">
+      <div class="key-group">
+        <span class="key-item"><kbd>← ↑ ↓ →</kbd> move</span>
+        <span class="key-item"><kbd>Enter</kbd> select</span>
+        <span class="key-item hide-small"><kbd>Esc</kbd> cancel</span>
+        <span class="key-item hide-small"><kbd>F2</kbd> pause</span>
+      </div>
+      <span class="credit">ORIGINAL BY MRLC</span>
+    </div>
+
+    <div class="touch-controls" aria-label="Touch game controls">
+      <div class="dpad">
+        <button class="touch-key up" type="button" data-code="26" aria-label="Up">↑</button>
+        <button class="touch-key left" type="button" data-code="8" aria-label="Left">←</button>
+        <button class="touch-key right" type="button" data-code="25" aria-label="Right">→</button>
+        <button class="touch-key down" type="button" data-code="27" aria-label="Down">↓</button>
+      </div>
+      <div class="touch-actions">
+        <button class="touch-key" type="button" data-code="10">Enter ↵</button>
+        <button class="touch-key" type="button" data-code="3">Esc</button>
+        <button class="touch-key" type="button" data-code="12">Retry</button>
+      </div>
+    </div>
+    <details class="virtual-keyboard">
+      <summary>On-screen keyboard</summary>
+      <div class="virtual-keys" id="virtual-keys" aria-label="BK letter and number keys"></div>
+      <div class="virtual-specials">
+        <button class="touch-key" type="button" data-code="32">Space</button>
+        <button class="touch-key" type="button" data-code="24">Backspace</button>
+        <button class="touch-key" type="button" data-code="3">Esc</button>
+        <button class="touch-key" type="button" data-code="10">Enter</button>
+        <button class="touch-key" type="button" data-code="12">Clear / Retry</button>
+      </div>
+    </details>
+  </main>
+
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <div class="dialog-heading"><h2 id="help-title">A little help in the cave</h2><button type="button" id="close-help" aria-label="Close help"><svg aria-hidden="true"><use href="#icon-close"/></svg></button></div>
+    <p>Collect the diamonds, avoid falling rocks and creatures, and find your way out.</p>
+    <p>Press any key through the title and original instructions. At the menu, select <strong>PLAY</strong>. Use ↑ / ↓ to choose the starting cave, then press Enter.</p>
+    <table aria-label="Keyboard controls">
+      <tbody>
+        <tr><td><kbd>← ↑ ↓ →</kbd></td><td>Move / navigate menus</td></tr>
+        <tr><td><kbd>Enter</kbd> <kbd>Space</kbd></td><td>Select / continue</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Cancel an original prompt</td></tr>
+        <tr><td><kbd>Delete</kbd></td><td>Give up a life and retry</td></tr>
+        <tr><td><kbd>F2</kbd></td><td>Pause / resume</td></tr>
+      </tbody>
+    </table>
+    <p>The newest held key takes priority. You can press Right while holding Down to turn. Releasing the newest key returns to an older key only if you are still holding it.</p>
+    <p><strong>KEYBOARD</strong> changes the original movement keys. <strong>JOYSTICK</strong> configures joystick buttons; a connected gamepad’s D-pad or left stick is supported.</p>
+    <p><strong>EDIT</strong> opens the original cave editor. Enter a cave number from 00 to 75, move with the arrows, and use 0–7 for tiles. Enter keeps your changes for this session.</p>
+    <p>Cassette writes requested by the game download as <strong>BOLDERDASH-EDIT.BIN</strong>.</p>
+    <p class="dialog-note">Sound starts after your first interaction. The game pauses when you switch away. This page works offline; nothing is uploaded.</p>
+  </dialog>
+  <div class="notice" id="notice" role="status" aria-live="polite"></div>
+  <noscript><p style="padding:24px;text-align:center">Enable JavaScript to run Bolder Dash.</p></noscript>
+
+  <script type="application/octet-stream" id="monitor-data">dwCsAOKBCILUgwSEYICchCiORo66jkKPio/+j8iQPpwynzyfdp/En9KfAOAE4AjgDOAQ4BTgGOAc4CDgJOAo4CzgMOA04DjgPOBmEYUdAgBFGcVFAP9FHQCAzQmFFQIAAQrCFRAA0RUAgIN+3xUigQQA3xVKgBgA3xWAABoAwhVQABEKgn4EiLcK5n+3it1/dwr4f3cK+H/3CTwJAAogiB8KzP/fFZAAzv8XjQAAhwDGFQAC9wmo/98JAKD3CaD/wxXQgfcJaAAGiA6IBBD3CWgAxEWgABchTQADAvcJfgDvARchTAAZhwMC9wnAAOgBFyFTAAYCxQsCAsUdtn/NCd8BFyFUAAMC3wlA4NkBFyFQANYC3wkAwNMBFyFAAMiGzwHGFQAC3xWQAM7/BIjIAcKUwJQOiIN+hwAFCgaIDogXoAoACwMXoDcA94LA5TAA9IHFDMUMxQwFYPABhwDBFdAA0RUDAFEREQrDFdSB9wm+/8IVEAoIiMEK0ZUgAMIK/IDBFdAAHohAnAEADwPACgkCwWUaAMIVEAAQiMAVCgAOiO8BwxXagfcJhP+HACSIIojBFbQAwhUEACiIxQsCA3cR8H7BHex+wh3qfiiIhwADCj8gBent8T8gBwrv++ni6+HfFV6CMADAFYAAHxAyAN8V8oK8AB8QvgA3CrJ+Nwqwfh8KsP+HABeNAADAF7L/94s+fgcDwJ86frcKNn73ijB+HAH3iyF+BQPAFSAA94oXfhQB94sQfgkDwB0IfgF+3zVAAM7/BQM3ivx994v1fd8DAArA3ex9N4rpfYcANwl+DmYR9wmyARegEAArggEQweUKAB+BwQxHYAYBKAEnARYBCAELARIB3wuyACADwBUNAB0B95WAAIl9AgE3ioN9AAo3Cux99wnQDhMBAwr3CSgADwHACwsC34uw//2A9wlYAQcBF6A/AAKDwN1VffcJggGFFTcJGg4CAPcJkgHDCwMDMVBKAAIBMUBKAPcJaA+HADcJ6g1mEfcJHgHA1YAAF6C/AAWDwMVAAMDVIABBARegrwATgxeguQAQgveLMn06AsBF8P/ADDccVgAmfTMD958gfRx9twoafS0BF6CfAA+DwMUgAMDVEAAXoJoAIYcXoJwAHgMXoJ8AGwMOiBsBF6CJAASHEAL3CTIAFAEXoIQAB4IXoIEA8YIDAreKyHwKAcBVEAAFARegiwACAsAVmQD3Cb4AhRU3CVYNAgD3Cc4A95UBAKF8wAwHhzEwSgAQAreKk3zADPmGQAvBZQIAVyAEAPOH94tWfAMCVyAIAO0ChwAmEIUQxQDCRQD/phAGiBegGAAGAo4g+gPBCsJlAgABARGQDogFoAEDj36AFYAVhwDACwgHFyAKAAWCAQIACsAMcBBWAIcA9wt2fAID9wk6DfcV//9ofMIVKADDFUAA3xXQAM7/wBABft8VkADO/8AQAX7DCox+wBfO/8CXsv+HAMUXsAADAveL53sHAjeQ4Hs3kN17xQsBA80JhwDBHfp7wUXA//eLpHsBA4EMQhDCRfD/ggoACrEAQAyCfsFFz/+BDIEMgQyHADcJRgy3Cu5794uAewMD9wkKByEBwEUA/xegfwAIghegHwALg8DlEAD3CTAAFAEXoJ8AD4PA5TAA9wEXoBEAA4P3CegBCAEXoAgA+gP3CWwDAgH3Cd4DNwn8C4cA9wnqAPdtcntse/cJBgD3CYgBhwD3i1p7BAL3NT8AVnsqAgMKxR1OewWAgwrFZUAA/YEIAXchRHsHh8XlQAB3ITp7+4b3CTYAdxEqe0QRxEXA/8VFPwDFDERhxQzFDERhxG0oe8RFAMDEbR57NxEIezeK/noDAfdtAHv8eocA94uoeicCxBUKAMMLAQMEix9htP/BHfZ6whUQAMMLDwPB5QAEwUUAwMFt4Hr3CagN9+WAAth690UAwNJ6GAHBbcp69wnSDfdlgALCevdFAMC8eg0BwhUeAMMLBQPBFYB79wm0DQQBwRWAdvcJag2HAMAMARDADMAMAWDBZR6Uwx14esIVCQD3iyB6GgIACveLHXoBA0AK9wt6egEDQApLlMALAQNLivcJ/AyHfkuUwAsBA0uK94v2eTADy51Yei0BJgpFlMVFAP/EFRAAAAr3i915AQNFisWLCgOFDAOGBQMAXQSUxOUCAPgCAF0ElMUdInoFQMQdHnpACgRARFELEfcJogyifs4LBwKOCoIK94ucedcDyx3+eYAVhwD3i5h5FwLDHdR5whUKAPeLfHkHAsUV/wCDDAGGxQDDDAUBxR3UecQdznkFeUt59wlYDIR+hwD3i1t5AwP3CdIBRwHBHZZ5wh2WecMVQAAXoAgAAgKB4DgBwOUSAMAMB2ANAQ4BEAESARUBFwEZARsBHAEdAR4BIAEiASQBAQokAfcJ2gAlAfcJ9AAiAcFgwUU/ABoB9wlWABsB9wmQABgB9wkuABUBgWAPAcHgDQHBYAsBweCB4AgBweCBYAUBwWCBYAIBwWCB4HcQEHn3CYgLhwD3CSr/9+0GeQB5t4r4ePcJlv33CYIL9wkU/4cAwx3seMQQxFU+AMRd5HjCFQoAwRBFEMVt2HjFNT8AAgNRlfsB9wl0C4x+5h3CeDcRvnj3CUYLtxW2ePcJ1P6HAPcJzv7DHah4whUKAMUQxVU/AIUKQRHB7Zh4ZZhDIf0C9wk4C41+9wkSC/cJpP6HAMEdfHjBRT8AwWWAAgKAwe2EePcJMAD3CUQL9wmE/ocA9wl+/sEdbHjBbWx4weWAAsFFAMDBbVp49wkKAPcJXgv3CV7+hwDDHTp4wh0weMJVPwCCCoPgwhUFAIMMgn7CEMMMwwzCYIcAF6AKABEC9wk8APc1PwAGeAMC94u4dy8C91U/APh3twr0d/cJbAonAfeLo3cMAhegDAADAvcJbggeARegBwADAvcJjvsYAfeLhHcVA8DlEAADgfcJSvwPAReg+P8DAsAVAQD3AcBlQAB3imF39wkw/HeKWXcAAYcAF6CCAAUCd4pMd8AVAwAHAReghAAFAneKPXfAFQQAawEXoIwAAwL3CdgAagHFnSh3AwL3iyF3YgLA5ZEAYYHADAdgDgENAQwBCwEYARwBIgFXAScBKwExATMBNwE5AUcB94vsdk0DABwWlDeK43b3CYoJNxBGd/cJgglCAfcJ7ADAFQUAOAHFCzsDN4rMdneKx3b2AcULNAM3ir12d4q6du8BxQstAvcJIAEqAfcJTAl3iqp29wlECSMB9wksASABd4qRdsAVAgAWAfcJogEYAfcd5nbodvcd4nbkdvcddHZ6dvedanZzdvcJfAcJAXeKYnbAFQEA9wmwBwIB9wmkAYcAd4pMdhAC9xUAQKR29xUAQKJ29xUAPJ529xUABoR23xXYArT/GgH3FQBwhHb3FQAQgnb3FQAKfnb3FQABZHbfFZgAtP/DFQB+xBXgANMdbHYDf8EdaHb3CRAJ9xUABFJ29wnIBvcJ/gaHAPcJjAh3iuR1FQP3nSN2IHY3Cip2NwoodsAdGHY3EBx2wO0idsDtIHYCgMBtHHY3EAh2DgE3irV1N4qydfeLpHUDA/dFAQDqdbeK4nX3CYD6wBUFAPcJ5gb3CTQIhwDmHdJ19wlaCPdtzHXIdfc1PwDCdfcCtxW8dfcJ2vuHAPcJDgh3il51FQL3Cqp195UBAJ9198WqAJh1NwqydfcV//+udfeLP3UpA3cKonV3CqB1JAG3CoB1twp4dfdFAQBydbeKanX3CQj695UDAGN197WqAFx1DQP3jFZ1CoZ3i1B1twpWdfctUnVidQKHNwpKdcCdPHXAjDfQNnX3CR4H9wmOB4cAd4rddMAdRHX3HT51PnU3EDh1xR02dUB5wR0odcFtInXCHSR1ggwReMELAoDB7RZ1hn6HABeglQADAsAVtwAOAReglgADAsAVygAIAReglwADAsAVwwACAcBlEAB3ioV09wlC+neKfXT3bcZ0wHT3CVr59wnc+ocAF6AfAAOC9wkiAA0BwEUA/xegOQADgvcJOAIHARegnwACgvcJ8vw3Cph0hwD3CYwBAQoCCsQVQAADkMPlGQAbgcMMx2AGAQcBCAEJAQsBDQEPAYEKIgEC4SABAmEeAQLhwQobAQLhgQoYAQJhgQoVAQJhwQoSARegCAACAsEKDQEXoBIABAI3Cix0dwDcBBegDAAlAvcJrgSHAMQdJHQEAgCKwACACgQQ94vFcwMDwB0idAUB94u6cw8DwB0UdMWd8nN/wfpzAxBFCkNB/9Dwc/cJEAAMfwMB9wkIAAN/9wnaAIcAxR3Wc4Vgt2DWc+YdwnPDFUAAwQspAxKBzowKhk6LhQq3Cq5zxTU/AAMCxeD34KJz94tQcxkDzoxOixYBoQAOjAuGztWAAMU1PwADAsVg92CAc/cKfHPFCveLKHMFA6EADowChs7VgAC3FWRz5hWAAvcLbHMDgAMLDgsDAc4tYHMUh7fjWnP3YEhzBIH3LUJzRnMLh4XjZhE3Ca4Dt4ouc/cJzPc3Ca4DhRWDFcULA4DFbThzBgF3ITJzA4fF7Sxz+gF3ERRzxW0ec8VFAMDFbRRzdxEGc4cA94u2cj8CxB0Oc8UdCHNEeQUKxd3ickUKREHDHeZygwwBhsQAwwzBEMPlwAD3IN5yAoLDbdxywhUHAAt59wloBYR+whUDAKEAxZ1gcgEDwgwEDAKGwQoEDIV+wUUBAHcgrHICgsFtqnLCFQcACXlEDAKG9wkQAEURBANEDAKG9wkEAIx+hwDBZQIAAoDB7YJysQBEDIcAwOUwAAKAAAoHAcEdYnLBDEBgwQzBDEBgNxBUcocAJhDmEIMQwwDCRQD/QJT3CWL2A6ABA4Z+gxWAFYcANwmcAsALAwL3CeYCEwEXoH8ACYIXoAgAAgLAFREAwOUQAAiBBQEXoJ8ABIPA5TAA9wkGADcJdAKHAGYQphD3i5hxAQPBDMFFwP/BbfBxweXAA8FFAMDBbeJx5h3McXcQyHHARQD/9wk297cVvHGCFYEVhwA3CSgC9wkKBIEdAgCCHQQA94tScQEDwQzAFQYAwgwCfveLSnEQAsFFwP/C7Yxx/YDCbYZx/YFCYLcQeHG3inBx9wkO9hwBwUUA/kMQgQyBDIEMwJ1dccNF+P8CA8AMwn43kE5xwu1mcf2Awm1gcf2BQmC3EEZxAQoCCvcJZP33CZADNwmyAYcAJhD3i+BwBgLBHSBxQhDBRcD/DgHBHRxxQhDBRcD/wQzBDMEMwJ0CcYAMAoeBCvwB94uqcAEDgQzCRT8AwBUGAIIMAn6AFYcAdxDwcLcQ7nA3kNVwNwlMAfeLgnACA8EMKodXIAACJ4bAFQYAwgwjhwN+tyDQcB+GQxCBDIEMgQyBYMFtvHDBRQDAwW2ycMKdmXDDRfj/AgPCDMJ+QJKAwMMdpnD3i4FwAgLDHZpwQgqDQMDQCZA3CfYAhwA3CeQAN5BlcEMQhBDBHXBwwh1ucPcQaHA3EWZwAApD4AOBBAOACgIBwAoDCwUKhOADgQQDhQoCAcUKBAsDIQeCZhEmCsUQAxFEEQUKAwEmCiYQAAomCsMLBAKDCsblCgAkAcTgAoGOCvwBxGDmEOYQjgwmESYKJgoECrZtBAACAAgDti0CAAYABAeECrbtCAACAIRtCgAOEYQMDuH3CRoAgW0MAIJtDgCEE/cJDADbfsZlEAA3CTwAhwDECwUDAWBCYfcJ0v4Ff4cAZhAACsEVIACxAAAMA4fRi/sC+wGBFYcA3xWQAM7/5hCmEGYQJhAmEYQAgBWAFYEVghWDFYQANwpsb/cJBvTAHYBvwx1ib8Iddm+CDAsQw2UCAAKAw+1mb4d+BQr3CTb8NwpQb/edPW86b/cJlgGHAMEdUm/DHURvw20+b8QVEAD3CdwBA3/BHT5vw2UAA/cJ4gH3CfoAAAo3Ci5vwhUGACYQphD3CQoAghWAFYAKiH6HALcKFm/3CxBvaQI3CgxvwRUjAAFgwAwHYAUBCwEPARMBFwEbAcMV3JPJiykDwxXgkyYByYsiA8MV5JMhAcmLHQPDFeiTHAHJixgDwxXskxcByYsTA8MV8JMSAcmLDgP3i01uAwPDFfiTCgHDFfST94s+bgUDwxX8kwIBwxUAlMAMwGUEAMEVQAD3iyVuAQOBDAHgwhUEAOYddm7mHXRu5h0EbuYdBG73HWpuZG73HWZuYG73nftt7m33HfZt7G3AlOYQ9wlA/IMVgQqHfrcV2m23FdJttxU6brcVNG6HAMUVgYHEFRAA94u8bQMDxRUDwMQMwR0ebkFBRQrDHRhuQ0HBUMMdBG7D5cAAw0UAwMNt9m3FEPcJqgADCgIKwBxKAAAMA4cPA4IK+wGBEPeLdm0EAkFhyZ3ebfYBwQxBYckd1G3xAcNlAgAFYcU1PwDlAocA94tYbQYC9wm88/cVACBqbQUB9wmS+vcVAARebYcA9wmk87eKeG33CRby9wmY84cAwB2KbcMdbG3CFQoA94sUbQICC5ABAQsQ9wkEAIl+hwDDZUAAAoDD7WBthwDCFSAA9yBSbQKCw21QbWMQgn6HAMIVIADDCwKAw+0+bVMQgn6HAEMQw+WAAvcgKm0ChsNtKG3CCw4DxBUgAFMUAn/BCwOAwe0UbQQBwwsCgMPtCm2OfsQVCgDBHQRt9wmy/wN/hwBDEMNlgAJ3IOpsAoLBbehs1yAAgAKDw+3ebMILEAPEFSAAYxgCf3cgymwDgsFtyGwFAfcgvmwCgsNtvGyQfsQVCgDBHbZs9wlQ/wN/hwAQvLHEEMLFw8C/tM65vscQucPFELK8whC3wrG2yrHAEMPEucIQEBAQ//8AwAAwAAwAA8AAMAAMAAMA//+qqlVVAAD/4d3d4f39/f//AAAIBH4ECAAAAH8BPQ0VJUEBAAAAPggcKggICAAAAAgICCocCD4AAAAASER+BAgAAAAAABIKfgoSAAAAAAASIn4iEgAAAAAAKCR+JCgAAAAAABAgfiAQAAAAAAgcKggICAgAAAAICAgIKhwIAAAAHgYKEiBAAAAAAHhgUEgEAgAAAAAAAgRIUGB4AAAAAEAgEgoGHgAAAAAAAAAAAAAAAAAICAgICAAIAAAAJCQSAAAAAAAAABQUPhQ+FBQAAAAiHCIiIhwiAAAABiYQCAQyMAAAAAgUFAwqEiwAAAAYCAQAAAAAAAAAEAgEBAQIEAAAAAQIEBAQCAQAAAAACCocKggAAAAAAAgIPggIAAAAAAAAAAAADAwIBAAAAAA+AAAAAAAAAAAAAAAMDAAAAAAgEAgEAgAAAAAcIjIqJiIcAAAACAwKCAgIPgAAABwiIBgEAj4AAAA+IBAYICIcAAAAEBgUEj4QEAAAAD4CHiAgIhwAAAA4BAIeIiIcAAAAPiAQCAQEBAAAABwiIhwiIhwAAAAcIiI8IBAOAAAAAAAMDAAMDAAAAAAADAwADAwIBAAQCAQCBAgQAAAAAAA+AD4AAAAAAAQIECAQCAQAAAAcIiAQCAAIAAAAHDIqKjoCHAAAAAgUIiI+IiIAAAAeIiIeIiIeAAAAHCICAgIiHAAAAB4kJCQkJB4AAAA+AgIeAgI+AAAAPgICHgICAgAAABwiAgIyIjwAAAAiIiI+IiIiAAAAHAgICAgIHAAAADgQEBAQEgwAAAAiEgoGChIiAAAAAgICAgICPgAAACI2KioiIiIAAAAiIiYqMiIiAAAAHCIiIiIiHAAAAB4iIh4CAgIAAAAcIiIiKhIsAAAAHiIiHgoSIgAAABwiAhwgIhwAAAA+CAgICAgIAAAAIiIiIiIiHAAAACIiIhQUCAgAAAAiIiIqKioUAAAAIiIUCBQiIgAAACIiFAgICAgAAAA+IBAIBAI+AAAAHAQEBAQEHAAAAAACBAgQIAAAAAAcEBAQEBAcAAAAAAA+ICAAAAAAAAAAAAAAAAA+AAAMCBAAAAAAAAAAAAAcIDwiXAAAAAICGiYiJhoAAAAAABwiAiIcAAAAICAsMiIyLAAAAAAAHCI+AjwAAAAYJAQOBAQEAAAAAAAsMiIyLCAcAAICGiYiIiIAAAAIAAwICAgcAAAAEAAQEBAQEBIMAAICIhIOEiIAAAAMCAgICAgcAAAAAAAWKioqKgAAAAAAGiYiIiIAAAAAABwiIiIcAAAAAAAaJiImGgICAAAALDIiMiwgIAAAABomAgICAAAAAAAcAhwgHgAAAAQEDgQEJBgAAAAAACIiIjIsAAAAAAAiIiIUCAAAAAAAIiIqKhQAAAAAACIUCBQiAAAAAAAiIiIUCAQCAAAAPhAIBD4AAAAwCAgGCAgwAAAACAgICAgICAAAAAYICDAICAYAAD4AAAAAAAAAAAAAPj4+Pj4+PgAAQD4VFBQUFCIAAAgICAj/AAAAAAAANn9/fz4ICAAAAAAAAA8ICAgICAgICA8IDwgICAgICAgI+AgICAgICAgICPgAAAAAAAAAAP8A/wAAAAAAAAD/AP8ICAgIAAgcPn9/HD4AAAAAAAD4CAgICAgAAAAA/wgICAgIFBQUFP8AAAAAAAAICAgIKhwIAAAICAgI/wgICAgIFBQUFBQUFBQUFAgICAgPCAgICAgAAAgEfgQIAAAAFBQU/xT/FBQUFAAIHCoICAgIAAAAHBxrf2sIHAAAAAAAAP8AAAAAABQUFBT/FBQUFBQICAgICAgICAgIAAgcPn8+HAgAAAgICAgPAAAAAAAICAj/CP8ICAgIAAAAAP8UFBQUFAgICP8A/wAAAAAICAj4CPgICAgIAAAQIH4gEAAAAMwzzDPMM8wzzDMAAAAySk5KMgAAAAAAHCA8IlwAAAAgHAIeIiIcAAAAAAASEhISPiAAAAAAPCQkJH5CAAAAABwiPgI8AAAAAAAIPioqPggIAAAAPiICAgIAAAAAACIUCBQiAAAAAAAiMiomIgAAABwAIjIqJiIAAAAAACISDhIiAAAAAAA4JCQkIgAAAAAAIjYqIiIAAAAAACIiPiIiAAAAAAAcIiIiHAAAAAAAPiIiIiIAAAAAADwiPCQiAAAAAAAaJiImGgICAAAAHCICIhwAAAAAAD4ICAgIAAAAAAAiIiIUCAQCAAAAKiocKioAAAAAAB4iHiIeAAAAAAACAh4iHgAAAAAAQkJOUk4AAAAAAB4gGCAeAAAAAAAqKioqPgAAAAAAHiA8IB4AAAAAACoqKip+QAAAAAAiIj4gIAAAAAAABwU8RDwAAAAySkpOSkoyAAAACBQiIj4iIgAAAD4CAh4iIh4AAAAiIiIiIiJ+QAAAPCQkJCQkfkIAAD4CAh4CAj4AAAAIPioqKj4IAAAAPiICAgICAgAAACIiFAgUIiIAAAAiIjIqJiIiAAAcACIyKiYiIgAAACISCgYKEiIAAAA4JCQkJCQiAAAAIjYqKiIiIgAAACIiIj4iIiIAAAAcIiIiIiIcAAAAPiIiIiIiIgAAADwiIjwoJCIAAAAeIiIeAgICAAAAHCICAgIiHAAAAD4ICAgICAgAAAAiIiIUCAQCAAAAKioqHCoqKgAAAB4iIh4iIh4AAAACAgIeIiIeAAAAQkJCTlJSTgAAABwiIBggIhwAAAAiKioqKio+AAAADhAgPCAQDgAAACIqKioqKn5AAAAiIiI+ICAgAAAABwUEPEREPAAANwmk9HcQgGTDFc7/NwpyZDcKcGTmFwQA3xWMnAQAtxFoZECSAwLLFZAAGAHACgMCyxUQABMBwAoDAvcJMgAOAcAKAgO3Cjxk9wkWAQcBxh04ZPeVBAArZMsVkADBHShk8Z0fZAEAnxUEADcJRvSHAMsVEABFHAIARBwEACED9wnSADcQBmTAFQAQ9wk4AEAUwhUUAPcJZgDBHexjQhwEAEEcAgD3CVYAwRXKAMIVAgD3CVIAwBUAAQQQBRD3CQYAyxWQAIcAyxVwAMVlFwBBf8sVEADEZRYAAX8LfssVUADFFWkAQX/LFTAAxRVkAEF/hAqAEAIR9wksAAIQhwDAFQgA9wnA/0CUxBUIAIAMC4fLFXAAxRUYAEF/yxUQAMUVFwBBfwoByxVQAMUVMwBBf8sVMADFFTMAQX/LFXAAxRUYAEF/yxUQAMUVFgBBfyJ/pn6HAAAKAgpC1YBgQAsFf4cAxRUgAMsVEAD3FQEAFmM3Cg5j9wkUAPcJfgD3iwNjBAL3CagAyxWQAIcAwhUACAAKBApLMf4DhApLMf0CAOEDgRcgAgDyggARjX4ACsIVgAD3CQoBAGGEfsIVBwCADIJ+BBCEDABhNxDCYgQKhApLMf0CACEIggQKhApLMf0DACH0h7eKmmLADAAhBIL3Cc4AhwDWC9YLuwHBHYpiwWUWAMIVFAD3CWgAwhUIAHEo7P8KAoR+dxheYncc6v9WYgUCdxhQYgIBt4pXYocAwR1EYsIdQmL37UpiSmICAsEVygD3CSwAwRXKAMIVAgD3CU4A9wsuYgwCxR0aYsQdGGL3CfD+NyAkYgMD95UCABNihwDAHRhi94sIYgcCBAqECksx/QIAIfqHBgEECoQKSzH9AwAh+ofADAAhrIL3CSAAwBUIAPcJGAA3IeJhAoKhAAEBsQAJjAp+wW3KYY9+hwAECveLvGELAksx/gJLMf4DhApLMf0ChApLMf0DhwBLMf4DSzH+AoQKSzH9A4QKSzH9AocAwAw3HOCfcmGHACYQJhHAVQADxBULAN81gADO//wDoQABAYAMBIbfFZAAzv8EAd8VgADO/wABxR1AYUF/Dn+EFYAVhwAXjQAA5hAmEcMVzv/EFRAAAAoLMf4DyxWwAAsx/AIXjYAAxR0QYYUMQX+EDMUdBmFBf8s1EAACAqEAAgGxAAABAIwMf8sVkACEFYMVhwAmEECU9wlw/4R+gBWHACYQ9wme/xGQhH6AFYcADAAeAEMAiwAdAUAChgQSCZsNAAAAAAAAAAAAAAAAUF0=</script>
+  <script type="application/octet-stream" id="program-data">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</script>
+  <script>/* A small, dependency-free BK-0010 runtime, written for BOLDERDASH.BIN.
+ * The game and monitor are data, not JavaScript replacements of their logic.
+ * Addresses and instruction encodings use the PDP-11's octal notation.
+ */
+'use strict';
+
+class BKMachine {
+  static HZ = 3_000_000;
+  // K1801VM1 instruction timings, in 3 MHz clock ticks. See README sources.
+  static A = [0, 12, 12, 24, 16, 20, 20, 28];
+  static B = [0, 20, 20, 32, 24, 36, 32, 40];
+  static AB = [4, 16, 20, 24, 16, 24, 24, 36];
+  static A2 = [0, 20, 20, 32, 20, 28, 32, 36];
+  static DS = [0, 32, 32, 40, 32, 40, 40, 48];
+
+  constructor(monitor, program) {
+    this.monitor = new Uint8Array(monitor);
+    this.program = new Uint8Array(program);
+    this.memory = new Uint8Array(65536);
+    this.words = new Uint16Array(this.memory.buffer);
+    this.r = new Uint16Array(8);
+    this.onSpeaker = null;
+    this.onTape = null;
+    this.reset();
+  }
+
+  reset() {
+    this.memory.fill(0);
+    this.memory.set(this.monitor, 0o100000);
+    this.r.fill(0);
+    this.ps = 0;
+    this.cycles = 0;
+    this.instructions = 0;
+    this.waiting = false;
+    this.halted = false;
+    this.scroll = 0o1330;
+    this.keyStatus = 0o100;
+    this.keyData = 0;
+    this.keyDown = false;
+    this.keyAlternate = false;
+    this.joystick = 0;
+    this.system = 0o200;
+    this.timerPreset = 0o104004;
+    this.timerControl = 0;
+    this.timerStart = 0;
+    this.timerBase = this.timerPreset;
+    this.fault = null;
+    this.booting = true;
+    // Call the monitor's initialization routine, then load the tape image.
+    this.r[6] = 0o1000;
+    this.push(0xff00);
+    this.r[7] = 0o100140;
+  }
+
+  loadProgram() {
+    const b = this.program;
+    const address = b[0] | b[1] << 8;
+    const length = b[2] | b[3] << 8;
+    if (length !== b.length - 4 || address + length > 32768) {
+      throw new Error('Invalid BK tape image.');
+    }
+    this.memory.set(b.subarray(4), address);
+    this.r[7] = 0o1000;
+    this.r[6] = 0o1000;
+    this.booting = false;
+  }
+
+  readWord(address) {
+    address &= 0xfffe;
+    return address < 0xff80 ? this.words[address >>> 1] : this.readPort(address);
+  }
+
+  readByte(address) {
+    address &= 65535;
+    return address < 0xff80 ? this.memory[address]
+      : (this.readPort(address & 0xfffe) >>> ((address & 1) * 8)) & 255;
+  }
+
+  writeWord(address, value) {
+    address &= 0xfffe;
+    value &= 65535;
+    if (address < 32768) this.words[address >>> 1] = value;
+    else if (address >= 0xff80) this.writePort(address, value);
+  }
+
+  writeByte(address, value) {
+    address &= 65535;
+    value &= 255;
+    if (address < 32768) this.memory[address] = value;
+    else if (address >= 0xff80) {
+      const a = address & 0xfffe;
+      // Avoid reading a device to merge a byte: reads can acknowledge input.
+      if (address & 1) this.writePort(a, value << 8, true, true);
+      else this.writePort(a, value, true, false);
+    }
+  }
+
+  readPort(address) {
+    switch (address) {
+      case 0o177660: return this.keyStatus;
+      case 0o177662:
+        this.keyStatus &= ~128;
+        return this.keyData & 127;
+      case 0o177664: return this.scroll;
+      case 0o177706: return this.timerPreset;
+      case 0o177710: return this.timerValue();
+      case 0o177712:
+        this.updateTimer();
+        return this.timerControl | 0xff00;
+      case 0o177714: return this.joystick;
+      case 0o177716: return 0x80a0 | (this.keyDown ? 0 : 64);
+      default: return 0;
+    }
+  }
+
+  writePort(address, value, byte = false, high = false) {
+    switch (address) {
+      case 0o177660:
+        if (!high) this.keyStatus = (this.keyStatus & 128) | (value & 64);
+        break;
+      case 0o177664:
+        if (byte) this.scroll = high ? ((this.scroll & 255) | (value & 0o1000))
+          : ((this.scroll & 0o1000) | (value & 255));
+        else this.scroll = value & 0o1377;
+        break;
+      case 0o177706:
+        this.timerBase = this.timerValue();
+        this.timerStart = this.cycles;
+        this.timerPreset = value;
+        break;
+      case 0o177712:
+        this.timerControl = value & 255;
+        this.timerBase = this.timerPreset || 65536;
+        this.timerStart = this.cycles;
+        break;
+      case 0o177716:
+        if ((this.system ^ value) & 64) this.onSpeaker?.(this.cycles, (value >>> 6) & 1);
+        this.system = value;
+        break;
+    }
+  }
+
+  timerTicks() {
+    const divider = 128 * ((this.timerControl & 0o40) ? 16 : 1)
+      * ((this.timerControl & 0o100) ? 4 : 1);
+    return Math.floor((this.cycles - this.timerStart) / divider);
+  }
+
+  updateTimer() {
+    const c = this.timerControl;
+    if ((c & 0o21) === 0o20 && this.timerTicks() >= this.timerBase && !(c & 2)) {
+      if (c & 4) this.timerControl |= 128;
+      if (c & 8) this.timerControl &= ~16;
+    }
+  }
+
+  timerValue() {
+    if ((this.timerControl & 0o21) !== 0o20) return this.timerPreset;
+    const elapsed = this.timerTicks();
+    if (elapsed < this.timerBase) return (this.timerBase - elapsed) & 65535;
+    if (!(this.timerControl & 2) && (this.timerControl & 8)) return this.timerPreset;
+    const period = (this.timerControl & 2) ? 65536 : (this.timerPreset || 65536);
+    return (period - ((elapsed - this.timerBase) % period)) & 65535;
+  }
+
+  pressKey(code, alternate = false) {
+    // K1801VP1-014 has a single-key press lock as well as the unread-code
+    // latch. Reading 177662 acknowledges the code, not the physical release.
+    if (this.keyDown) return;
+    this.keyDown = true;
+    if (!(this.keyStatus & 128)) {
+      this.keyData = code & 127;
+      this.keyAlternate = alternate || !!(code & 128);
+      this.keyStatus |= 128;
+    }
+  }
+
+  releaseKey() { this.keyDown = false; }
+
+  selectKey(code = null, alternate = false) {
+    // Browser controls describe the currently selected virtual key. Coalesce
+    // host transitions here so an unread old direction cannot delay a turn.
+    // pressKey remains available for individual hardware press events.
+    if (code === null) { this.releaseKey(); return; }
+    const data = code & 127;
+    const ar2 = !!(alternate || (code & 128));
+    if (this.keyDown && this.keyData === data && this.keyAlternate === ar2) return;
+    this.keyDown = true;
+    this.keyData = data;
+    this.keyAlternate = ar2;
+    this.keyStatus |= 128;
+  }
+
+  fetch() {
+    const value = this.readWord(this.r[7]);
+    this.r[7] += 2;
+    return value;
+  }
+
+  push(value) { this.r[6] -= 2; this.writeWord(this.r[6], value); }
+  pop() { const v = this.readWord(this.r[6]); this.r[6] += 2; return v; }
+
+  trap(vector, instruction = false) {
+    this.push(this.ps);
+    this.push(this.r[7]);
+    this.r[7] = this.readWord(vector);
+    this.ps = this.readWord(vector + 2) & 255;
+    this.waiting = false;
+    this.cycles += instruction ? 56 : 68;
+  }
+
+  // Register operands use negative handles; all other handles are bus addresses.
+  operand(spec, byte = false, timings = BKMachine.B) {
+    const reg = spec & 7;
+    const mode = spec >>> 3;
+    this.cycles += timings[mode];
+    const increment = byte && reg < 6 ? 1 : 2;
+    let a;
+    switch (mode) {
+      case 0: return -reg - 1;
+      case 1: return this.r[reg];
+      case 2:
+        a = this.r[reg]; this.r[reg] += increment; return a;
+      case 3:
+        a = this.r[reg]; this.r[reg] += 2; return this.readWord(a);
+      case 4:
+        this.r[reg] -= increment; return this.r[reg];
+      case 5:
+        this.r[reg] -= 2; return this.readWord(this.r[reg]);
+      case 6:
+        a = this.fetch(); return (this.r[reg] + a) & 65535;
+      case 7:
+        a = this.fetch(); return this.readWord((this.r[reg] + a) & 65535);
+    }
+  }
+
+  get(handle, byte = false) {
+    return handle < 0 ? this.r[-handle - 1] & (byte ? 255 : 65535)
+      : byte ? this.readByte(handle) : this.readWord(handle);
+  }
+
+  put(handle, value, byte = false, signExtend = false) {
+    if (handle < 0) {
+      const reg = -handle - 1;
+      this.r[reg] = byte ? signExtend ? (value << 24 >> 24)
+        : ((this.r[reg] & 0xff00) | (value & 255)) : value;
+    } else if (byte) this.writeByte(handle, value);
+    else this.writeWord(handle, value);
+  }
+
+  nz(value, byte = false) {
+    const mask = byte ? 255 : 65535;
+    const sign = byte ? 128 : 32768;
+    value &= mask;
+    return (value === 0 ? 4 : 0) | (value & sign ? 8 : 0);
+  }
+
+  step() {
+    if (this.halted) return;
+    if (this.booting && this.r[7] === 0xff00) this.loadProgram();
+    if ((this.keyStatus & 0o300) === 0o200 && !(this.ps & 0o200)) {
+      this.trap(this.keyAlternate ? 0o274 : 0o60);
+    }
+    if (this.waiting) { this.cycles += 16; return; }
+    const pc = this.r[7];
+    const i = this.fetch();
+    this.instructions++;
+    this.cycles += 12;
+    const top = i >>> 12;
+    if ((top >= 1 && top <= 6) || (top >= 9 && top <= 14)) {
+      const byte = top >= 9 && top <= 13;
+      const mask = byte ? 255 : 65535;
+      const sign = byte ? 128 : 32768;
+      const op = top & 7;
+      // Evaluate the source value before resolving the destination: addressing
+      // modes can change the same register used by both operands.
+      const sourceMode = (i >>> 9) & 7;
+      const s = this.get(this.operand((i >>> 6) & 63, byte, BKMachine.A), byte);
+      const timing = op === 2 || op === 3 ? (sourceMode ? BKMachine.A : BKMachine.A2)
+        : (sourceMode ? BKMachine.AB : BKMachine.B);
+      const h = this.operand(i & 63, byte, timing);
+      let d, v, flags;
+      if (op === 1) {
+        this.put(h, s, byte, byte);
+        this.ps = (this.ps & ~14) | this.nz(s, byte);
+        return;
+      }
+      d = this.get(h, byte);
+      switch (op) {
+        case 2: // CMP is source minus destination on a PDP-11.
+          v = (s - d) & mask;
+          flags = this.nz(v, byte) | (((s ^ d) & (s ^ v) & sign) ? 2 : 0) | (s < d ? 1 : 0);
+          this.ps = (this.ps & ~15) | flags;
+          return;
+        case 3: v = s & d; break;
+        case 4: v = d & ~s; break;
+        case 5: v = d | s; break;
+        case 6:
+          if (top === 14) {
+            v = (d - s) & 65535;
+            flags = this.nz(v) | (((d ^ s) & (d ^ v) & 32768) ? 2 : 0) | (d < s ? 1 : 0);
+          } else {
+            v = (d + s) & 65535;
+            flags = this.nz(v) | ((~(d ^ s) & (d ^ v) & 32768) ? 2 : 0) | (d + s > 65535 ? 1 : 0);
+          }
+          this.put(h, v);
+          this.ps = (this.ps & ~15) | flags;
+          return;
+      }
+      if (op !== 3) this.put(h, v, byte);
+      this.ps = (this.ps & ~14) | this.nz(v, byte);
+      return;
+    }
+
+    const branch = i & 0o177400;
+    if ((branch >= 0o400 && branch <= 0o3400)
+      || (branch >= 0o100000 && branch <= 0o103400)) {
+      const n = !!(this.ps & 8), z = !!(this.ps & 4), v = !!(this.ps & 2), c = !!(this.ps & 1);
+      let take;
+      switch (branch) {
+        case 0o400: take = true; break;
+        case 0o1000: take = !z; break;
+        case 0o1400: take = z; break;
+        case 0o2000: take = n === v; break;
+        case 0o2400: take = n !== v; break;
+        case 0o3000: take = !z && n === v; break;
+        case 0o3400: take = z || n !== v; break;
+        case 0o100000: take = !n; break;
+        case 0o100400: take = n; break;
+        case 0o101000: take = !c && !z; break;
+        case 0o101400: take = c || z; break;
+        case 0o102000: take = !v; break;
+        case 0o102400: take = v; break;
+        case 0o103000: take = !c; break;
+        case 0o103400: take = c; break;
+      }
+      this.cycles += 4;
+      if (take) this.r[7] += (i << 24 >> 24) * 2;
+      return;
+    }
+
+    if ((i & 0o177000) === 0o77000) {
+      const reg = (i >>> 6) & 7;
+      this.r[reg]--;
+      if (this.r[reg]) this.r[7] -= (i & 63) * 2;
+      this.cycles += 8;
+      return;
+    }
+    if ((i & 0o177000) === 0o4000) {
+      const reg = (i >>> 6) & 7;
+      const h = this.operand(i & 63, false, BKMachine.DS);
+      const target = h < 0 ? this.r[-h - 1] : h;
+      this.push(this.r[reg]);
+      this.r[reg] = this.r[7];
+      this.r[7] = target;
+      this.cycles -= 12;
+      return;
+    }
+    if ((i & 0o177770) === 0o200) {
+      const reg = i & 7;
+      this.r[7] = this.r[reg];
+      this.r[reg] = this.pop();
+      this.cycles += 20;
+      return;
+    }
+    if ((i & 0o177700) === 0o100) {
+      const h = this.operand(i & 63, false, BKMachine.A2);
+      this.r[7] = h < 0 ? this.r[-h - 1] : h;
+      this.cycles -= 12;
+      return;
+    }
+    if ((i & 0o177000) === 0o74000) {
+      const s = this.r[(i >>> 6) & 7];
+      const h = this.operand(i & 63);
+      const v = s ^ this.get(h);
+      this.put(h, v);
+      this.ps = (this.ps & ~14) | this.nz(v);
+      return;
+    }
+    if ((i & 0o177400) === 0o104000) {
+      // Tape writes in the original editor are exported as a normal .BIN file.
+      if ((i & 255) === 0o36 && this.onTape) {
+        this.onTape(this);
+        return;
+      }
+      this.trap(0o30, true);
+      return;
+    }
+    if ((i & 0o177400) === 0o104400) { this.trap(0o34, true); return; }
+    if ((i & 0o177760) === 0o240) { this.ps &= ~(i & 15); return; }
+    if ((i & 0o177760) === 0o260) { this.ps |= i & 15; return; }
+    if (i === 2 || i === 6) { this.r[7] = this.pop(); this.ps = this.pop() & 255; this.cycles += 28; return; }
+    if (i === 1) { this.waiting = true; return; }
+    if (i === 0) { this.halted = true; return; }
+    if (i === 3) { this.trap(0o14, true); return; }
+    if (i === 4) { this.trap(0o20, true); return; }
+    if (i === 5) { this.keyStatus = 64; this.timerControl = 0; this.cycles += 1128; return; }
+
+    const single = i & 0o177700;
+    if (single === 0o300) {
+      const h = this.operand(i & 63);
+      const d = this.get(h);
+      const value = ((d & 255) << 8) | (d >>> 8);
+      this.put(h, value);
+      this.ps = (this.ps & ~15) | this.nz(value, true);
+      return;
+    }
+    if (single === 0o106400) {
+      const value = this.get(this.operand(i & 63, true), true);
+      this.ps = (this.ps & 0o20) | (value & 0o357);
+      return;
+    }
+    if (single === 0o106700) {
+      const h = this.operand(i & 63, true);
+      const value = this.ps;
+      this.put(h, value, true, true);
+      this.ps = (this.ps & ~14) | this.nz(value, true);
+      return;
+    }
+    const basic = single & 0o077700;
+    if (basic >= 0o5000 && basic <= 0o6300 || single === 0o6700) {
+      const byte = !!(i & 0x8000);
+      const mask = byte ? 255 : 65535;
+      const sign = byte ? 128 : 32768;
+      const h = this.operand(i & 63, byte, basic === 0o5700 ? BKMachine.A : BKMachine.B);
+      const d = basic === 0o5000 ? 0 : this.get(h, byte);
+      const carry = this.ps & 1;
+      let value = d, flags = 0;
+      switch (basic) {
+        case 0o5000: value = 0; flags = 4; break;
+        case 0o5100: value = (~d) & mask; flags = this.nz(value, byte) | 1; break;
+        case 0o5200:
+          value = (d + 1) & mask;
+          flags = carry | this.nz(value, byte) | (value === sign ? 2 : 0);
+          break;
+        case 0o5300:
+          value = (d - 1) & mask;
+          flags = carry | this.nz(value, byte) | (d === sign ? 2 : 0);
+          break;
+        case 0o5400:
+          value = (-d) & mask;
+          flags = this.nz(value, byte) | (value ? 1 : 0) | (value === sign ? 2 : 0);
+          break;
+        case 0o5500:
+          value = (d + carry) & mask;
+          flags = this.nz(value, byte) | (carry && d === mask ? 1 : 0) | (carry && value === sign ? 2 : 0);
+          break;
+        case 0o5600:
+          value = (d - carry) & mask;
+          flags = this.nz(value, byte) | (carry && d === 0 ? 1 : 0) | (carry && d === sign ? 2 : 0);
+          break;
+        case 0o5700: flags = this.nz(d, byte); break;
+        case 0o6000:
+          value = (d >>> 1) | (carry ? sign : 0);
+          flags = this.nz(value, byte) | (d & 1);
+          flags |= (!!(flags & 8) !== !!(flags & 1)) ? 2 : 0;
+          break;
+        case 0o6100:
+          value = ((d << 1) | carry) & mask;
+          flags = this.nz(value, byte) | (d & sign ? 1 : 0);
+          flags |= (!!(flags & 8) !== !!(flags & 1)) ? 2 : 0;
+          break;
+        case 0o6200:
+          value = (d >>> 1) | (d & sign);
+          flags = this.nz(value, byte) | (d & 1);
+          flags |= (!!(flags & 8) !== !!(flags & 1)) ? 2 : 0;
+          break;
+        case 0o6300:
+          value = (d << 1) & mask;
+          flags = this.nz(value, byte) | (d & sign ? 1 : 0);
+          flags |= (!!(flags & 8) !== !!(flags & 1)) ? 2 : 0;
+          break;
+        case 0o6700:
+          value = (this.ps & 8) ? 65535 : 0;
+          flags = carry | (value ? 8 : 4);
+          break;
+      }
+      if (basic !== 0o5700) this.put(h, value, byte);
+      this.ps = (this.ps & ~15) | flags;
+      return;
+    }
+    this.fault = 'Unsupported instruction ' + i.toString(8).padStart(6, '0')
+      + ' at ' + pc.toString(8).padStart(6, '0');
+    this.halted = true;
+    throw new Error(this.fault);
+  }
+
+  run(cycleBudget) {
+    const end = this.cycles + cycleBudget;
+    while (this.cycles < end && !this.halted) this.step();
+    return this.cycles;
+  }
+
+  // Each 16-bit word describes eight color pixels (LSB first). The original
+  // 256 x 256 color image is doubled horizontally into a 512 x 256 raster.
+  render(rgba, monochrome = false) {
+    const pixels = new Uint32Array(rgba.buffer, rgba.byteOffset, rgba.byteLength / 4);
+    const colors = [0xff000000, 0xffff0000, 0xff00ff00, 0xff0000ff];
+    const offset = (this.scroll - 0o330) & 255;
+    const height = (this.scroll & 0o1000) ? 256 : 64;
+    let out = 0;
+    for (let y = 0; y < 256; y++) {
+      const row = 0x4000 + (((y + offset) & 255) << 6);
+      for (let x = 0; x < 64; x++) {
+        const b = y < height ? this.memory[row + x] : 0;
+        for (let bit = 0; bit < 8; bit += monochrome ? 1 : 2) {
+          const color = monochrome ? ((b >>> bit) & 1 ? 0xffffffff : 0xff000000)
+            : colors[(b >>> bit) & 3];
+          pixels[out++] = color;
+          if (!monochrome) pixels[out++] = color;
+        }
+      }
+    }
+    return rgba;
+  }
+}
+
+if (typeof module !== 'undefined') module.exports = { BKMachine };
+else globalThis.BKMachine = BKMachine;
+</script>
+  <script>'use strict';
+
+(() => {
+  const $ = id => document.getElementById(id);
+  const decode = id => Uint8Array.from(atob($(id).textContent.trim()), c => c.charCodeAt(0));
+  const machine = new BKMachine(decode('monitor-data'), decode('program-data'));
+  const canvas = $('screen');
+  const context = canvas.getContext('2d', { alpha: false });
+  const frame = context.createImageData(512, 256);
+  const held = new Map();
+  let paused = false;
+  let monochrome = false;
+  let lastTime = null;
+  let targetCycle = 0;
+  let toastTimeout;
+  let lastTapeCycle = -Infinity;
+  let tapId = null;
+  let tapTimer;
+  let tapSerial = 0;
+
+  class Speaker {
+    constructor() {
+      this.enabled = true;
+      this.context = null;
+      this.events = [];
+      this.sources = new Set();
+      this.nextTime = 0;
+      this.fraction = 0;
+    }
+
+    async unlock() {
+      if (!this.enabled) return;
+      try {
+        if (!this.context) {
+          const Audio = window.AudioContext || window.webkitAudioContext;
+          if (!Audio) return;
+          this.context = new Audio();
+          const highpass = this.context.createBiquadFilter();
+          highpass.type = 'highpass';
+          highpass.frequency.value = 40;
+          const lowpass = this.context.createBiquadFilter();
+          lowpass.type = 'lowpass';
+          lowpass.frequency.value = 6000;
+          this.gain = this.context.createGain();
+          this.gain.gain.value = 0.12;
+          this.gain.connect(highpass).connect(lowpass).connect(this.context.destination);
+        }
+        if (this.context.state === 'suspended') await this.context.resume();
+      } catch {
+        this.enabled = false;
+        updateSoundButton();
+        toast('Audio is unavailable in this browser.');
+      }
+    }
+
+    quiet() {
+      for (const source of this.sources) {
+        try { source.stop(); } catch { /* Already ended. */ }
+      }
+      this.sources.clear();
+      this.nextTime = 0;
+      this.fraction = 0;
+    }
+
+    render(start, end, initialLevel) {
+      if (!this.enabled || this.context?.state !== 'running' || end <= start) {
+        this.events.length = 0;
+        return;
+      }
+      const audio = this.context;
+      const exactCount = (end - start) * audio.sampleRate / BKMachine.HZ + this.fraction;
+      const count = Math.floor(exactCount);
+      this.fraction = exactCount - count;
+      if (!count) { this.events.length = 0; return; }
+      const buffer = audio.createBuffer(1, count, audio.sampleRate);
+      const data = buffer.getChannelData(0);
+      let event = 0, level = initialLevel;
+      for (let n = 0; n < count; n++) {
+        const cycle = start + n * BKMachine.HZ / audio.sampleRate;
+        while (event < this.events.length && this.events[event][0] <= cycle) {
+          level = this.events[event++][1];
+        }
+        data[n] = level ? 1 : -1;
+      }
+      this.events.length = 0;
+      if (this.nextTime < audio.currentTime || this.nextTime > audio.currentTime + 0.2) {
+        this.nextTime = audio.currentTime + 0.045;
+      }
+      const source = audio.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.gain);
+      this.sources.add(source);
+      source.onended = () => { this.sources.delete(source); source.disconnect(); };
+      source.start(this.nextTime);
+      this.nextTime += buffer.duration;
+    }
+  }
+
+  const speaker = new Speaker();
+  machine.onSpeaker = (cycle, level) => {
+    if (speaker.enabled && speaker.context?.state === 'running') speaker.events.push([cycle, level]);
+  };
+
+  function toast(message) {
+    $('notice').textContent = message;
+    $('notice').classList.add('visible');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => $('notice').classList.remove('visible'), 3000);
+  }
+
+  function download(bytes, name, type) {
+    const url = URL.createObjectURL(new Blob([bytes], { type }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = name;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
+  machine.onTape = m => {
+    const block = m.r[1];
+    if (m.memory[block] !== 2) {
+      toast('This page supports the original editor’s tape save.');
+      m.ps |= 1;
+      return;
+    }
+    const start = m.readWord(block + 2);
+    const size = m.readWord(block + 4);
+    m.ps &= ~1;
+    m.writeByte(block + 1, 0);
+    // The program writes the same tape image twice, as on the real cassette.
+    if (m.cycles - lastTapeCycle < 1000) return;
+    lastTapeCycle = m.cycles;
+    const tape = new Uint8Array(size + 4);
+    const header = new DataView(tape.buffer);
+    header.setUint16(0, start, true);
+    header.setUint16(2, size, true);
+    tape.set(m.memory.subarray(start, start + size), 4);
+    download(tape, 'BOLDERDASH-EDIT.BIN', 'application/octet-stream');
+    toast('Saved BOLDERDASH-EDIT.BIN');
+  };
+
+  function releaseAll() {
+    clearTimeout(tapTimer);
+    tapId = null;
+    held.clear();
+    machine.selectKey(null);
+    machine.joystick = 0;
+    document.querySelectorAll('[data-code].pressed').forEach(b => b.classList.remove('pressed'));
+  }
+
+  function press(id, code) {
+    if (paused || machine.halted || held.has(id)) return;
+    speaker.unlock();
+    held.set(id, code);
+    // Only a new physical press changes priority. OS repeat cannot promote an
+    // older arrow, and the newest held key replaces any stale unread code.
+    machine.selectKey(code);
+  }
+
+  function release(id) {
+    if (!held.has(id)) return;
+    const active = Array.from(held.keys()).at(-1);
+    held.delete(id);
+    if (active === id) machine.selectKey(held.size ? Array.from(held.values()).at(-1) : null);
+  }
+
+  function tap(code) {
+    if (paused || machine.halted) return;
+    clearTimeout(tapTimer);
+    if (tapId !== null) release(tapId);
+    const id = 'tap:' + ++tapSerial;
+    tapId = id;
+    press(id, code);
+    tapTimer = setTimeout(() => {
+      release(id);
+      if (tapId === id) tapId = null;
+    }, 120);
+  }
+
+  function setPaused(value) {
+    paused = value;
+    releaseAll();
+    speaker.quiet();
+    lastTime = null;
+    targetCycle = machine.cycles;
+    $('pause-label').textContent = paused ? 'Resume' : 'Pause';
+    $('pause').setAttribute('aria-pressed', String(paused));
+    $('pause-symbol').setAttribute('href', paused ? '#icon-play' : '#icon-pause');
+    $('pause-overlay').hidden = !paused;
+    $('power-label').textContent = paused ? 'PAUSED' : 'RUNNING';
+    $('power-dot').classList.toggle('paused', paused);
+    if (!paused) speaker.unlock();
+  }
+
+  function updateSoundButton() {
+    $('sound').setAttribute('aria-pressed', String(speaker.enabled));
+    $('sound-label').textContent = speaker.enabled ? 'Sound on' : 'Sound off';
+    $('sound-symbol').setAttribute('href', speaker.enabled ? '#icon-sound' : '#icon-muted');
+  }
+
+  $('pause').addEventListener('click', () => setPaused(!paused));
+  $('resume').addEventListener('click', () => setPaused(false));
+  $('restart').addEventListener('click', () => {
+    speaker.quiet();
+    speaker.events.length = 0;
+    machine.reset();
+    lastTapeCycle = -Infinity;
+    $('error-overlay').hidden = true;
+    setPaused(false);
+    toast('Restarted');
+    canvas.focus({ preventScroll: true });
+  });
+  $('sound').addEventListener('click', () => {
+    speaker.enabled = !speaker.enabled;
+    speaker.quiet();
+    if (speaker.enabled) speaker.unlock();
+    updateSoundButton();
+  });
+  $('display').addEventListener('click', () => {
+    monochrome = !monochrome;
+    $('display-label').textContent = monochrome ? 'B&W' : 'Color';
+    $('display').setAttribute('aria-pressed', String(monochrome));
+    paint();
+  });
+  $('fullscreen').addEventListener('click', async () => {
+    const player = $('player');
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (player.requestFullscreen) await player.requestFullscreen();
+      else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+      else toast('Use your browser’s full-screen option.');
+    } catch { toast('Full screen is unavailable in this browser.'); }
+  });
+
+  let helpWasPaused = false;
+  function openHelp() {
+    if ($('help-dialog').open) return;
+    helpWasPaused = paused;
+    setPaused(true);
+    $('help-dialog').showModal();
+  }
+  $('help').addEventListener('click', openHelp);
+  $('close-help').addEventListener('click', () => $('help-dialog').close());
+  $('help-dialog').addEventListener('close', () => {
+    setPaused(helpWasPaused);
+    canvas.focus({ preventScroll: true });
+  });
+  $('help-dialog').addEventListener('click', e => {
+    if (e.target === $('help-dialog')) {
+      const r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+
+  const specialKeys = {
+    ArrowLeft: 0o10, ArrowRight: 0o31, ArrowUp: 0o32, ArrowDown: 0o33,
+    Enter: 0o12, Escape: 0o3, Backspace: 0o30, Delete: 0o14,
+    Tab: 0o211, ' ': 0o40,
+  };
+  const russian = 'ЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ';
+
+  function keyCode(event) {
+    if (event.key in specialKeys) return specialKeys[event.key];
+    if (event.key.length !== 1) return null;
+    const upper = event.key.toUpperCase();
+    const index = russian.indexOf(upper);
+    if (index >= 0) return 0x60 + index;
+    const code = upper.charCodeAt(0);
+    if (code >= 32 && code <= 126) return event.ctrlKey ? code & 31 : code;
+    return null;
+  }
+
+  window.addEventListener('keydown', event => {
+    if ($('help-dialog').open) return;
+    // Preserve browser and operating-system shortcuts.
+    if (event.metaKey || (event.ctrlKey && ['r', 'l', 't', 'w', 'n', '+', '-', '0'].includes(event.key.toLowerCase()))) return;
+    if (event.key === 'F1') { event.preventDefault(); openHelp(); return; }
+    if (event.key === 'F2') { event.preventDefault(); if (!event.repeat) setPaused(!paused); return; }
+    if (event.key === 'F5' || event.key === 'F11' || event.key === 'F12') return;
+    // Native controls retain Enter/Space/Tab when reached by keyboard navigation.
+    if (event.target instanceof HTMLButtonElement && ['Enter', ' ', 'Tab'].includes(event.key)) return;
+    if (event.key === 'Tab' && event.target !== canvas) return;
+    const code = keyCode(event);
+    if (code === null) return;
+    event.preventDefault();
+    if (event.repeat) return;
+    if (paused) {
+      if (event.key === 'Enter') setPaused(false);
+      return;
+    }
+    press('key:' + event.code, code);
+  });
+  window.addEventListener('keyup', e => release('key:' + e.code));
+  window.addEventListener('blur', releaseAll);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) setPaused(true); });
+  canvas.addEventListener('pointerdown', () => {
+    canvas.focus({ preventScroll: true });
+    speaker.unlock();
+  });
+
+  document.querySelectorAll('[data-code]').forEach(button => {
+    const code = Number(button.dataset.code);
+    button.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      button.setPointerCapture(e.pointerId);
+      button.classList.add('pressed');
+      press('pointer:' + e.pointerId, code);
+    });
+    const up = e => {
+      button.classList.remove('pressed');
+      release('pointer:' + e.pointerId);
+    };
+    button.addEventListener('pointerup', up);
+    button.addEventListener('pointercancel', up);
+    button.addEventListener('lostpointercapture', up);
+    // Keyboard and assistive-technology activation have no pointerdown event.
+    button.addEventListener('click', e => {
+      if (e.detail) return;
+      tap(code);
+    });
+  });
+
+  const virtualKeyboard = $('virtual-keys');
+  for (const char of '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = char;
+    button.setAttribute('aria-label', 'Type ' + char);
+    button.addEventListener('click', () => {
+      tap(char.charCodeAt(0));
+    });
+    virtualKeyboard.append(button);
+  }
+
+  function pollGamepad() {
+    let value = 0;
+    try {
+      for (const pad of navigator.getGamepads?.() || []) {
+        if (!pad?.connected) continue;
+        const buttons = pad.buttons;
+        if (buttons[14]?.pressed || pad.axes[0] < -0.4) value |= 0o20;
+        if (buttons[15]?.pressed || pad.axes[0] > 0.4) value |= 0o100;
+        if (buttons[12]?.pressed || pad.axes[1] < -0.4) value |= 0o400;
+        if (buttons[13]?.pressed || pad.axes[1] > 0.4) value |= 0o4;
+        if (buttons[0]?.pressed) value |= 0o1;
+        if (buttons[1]?.pressed) value |= 0o2;
+      }
+    } catch { /* Some file:// browser policies disable the Gamepad API. */ }
+    machine.joystick = value;
+  }
+
+  function paint() {
+    machine.render(frame.data, monochrome);
+    context.putImageData(frame, 0, 0);
+  }
+
+  function animate(now) {
+    const elapsed = lastTime === null ? 0 : Math.min(now - lastTime, 80);
+    lastTime = now;
+    if (!paused && !machine.halted) {
+      pollGamepad();
+      const start = machine.cycles;
+      const level = (machine.system >>> 6) & 1;
+      targetCycle += elapsed * BKMachine.HZ / 1000;
+      try {
+        machine.run(Math.max(0, targetCycle - machine.cycles));
+        speaker.render(start, machine.cycles, level);
+      } catch (error) {
+        speaker.quiet();
+        $('error-detail').textContent = error.message;
+        $('error-overlay').hidden = false;
+        $('power-label').textContent = 'STOPPED';
+        console.error(error);
+      }
+      if (machine.halted && !machine.fault) {
+        $('power-label').textContent = 'STOPPED';
+        toast('The BK program stopped. Use Restart to begin again.');
+      }
+    }
+    paint();
+    requestAnimationFrame(animate);
+  }
+
+  // A small read-only hook makes the actual machine state inspectable in a
+  // browser debugger; the page itself has no debug interface or network code.
+  Object.defineProperty(window, 'bk', { value: Object.freeze({
+    machine,
+    get paused() { return paused; },
+    get monochrome() { return monochrome; },
+    get audioState() { return speaker.context?.state || 'not-started'; },
+  }) });
+  updateSoundButton();
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
